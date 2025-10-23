@@ -1,0 +1,41 @@
+!
+hostname DIST-SW01
+!
+vlan 10
+ name ADMIN
+vlan 20
+ name OPS
+vlan 30
+ name SECURITY
+vlan 99
+ name MGMT
+!
+interface range fa0/2
+ switchport mode access
+ switchport access vlan 10
+!
+interface fa0/3
+ switchport mode access
+ switchport access vlan 20
+!
+interface fa0/4
+ switchport mode access
+ switchport access vlan 10
+!
+interface fa0/1
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,99
+!
+interface fa0/24
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,99
+!
+snmp-server community NOC-READONLY RO
+snmp-server host 10.10.10.10 version 2c NOC-READONLY
+snmp-server enable traps
+!
+logging 10.10.10.10
+service timestamps log datetime msec
+!
+end
+write
