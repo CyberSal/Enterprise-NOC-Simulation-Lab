@@ -1,0 +1,58 @@
+!
+hostname CORE-RTR01
+no ip domain-lookup
+!
+interface gig0/0
+ no shutdown
+!
+interface gig0/0.10
+ encapsulation dot1Q 10
+ ip address 10.10.10.1 255.255.255.0
+!
+interface gig0/0.20
+ encapsulation dot1Q 20
+ ip address 10.10.20.1 255.255.255.0
+!
+interface gig0/0.30
+ encapsulation dot1Q 30
+ ip address 10.10.30.1 255.255.255.0
+!
+interface gig0/0.99
+ encapsulation dot1Q 99
+ ip address 10.10.99.1 255.255.255.0
+ no shutdown
+!
+ip dhcp pool VLAN10
+ network 10.10.10.0 255.255.255.0
+ default-router 10.10.10.1
+ dns-server 10.10.10.10
+!
+ip dhcp pool VLAN20
+ network 10.10.20.0 255.255.255.0
+ default-router 10.10.20.1
+ dns-server 10.10.10.10
+!
+ip dhcp pool VLAN30
+ network 10.10.30.0 255.255.255.0
+ default-router 10.10.30.1
+ dns-server 10.10.10.10
+!
+ip dhcp pool VLAN99
+ network 10.10.99.0 255.255.255.0
+ default-router 10.10.99.1
+ dns-server 10.10.10.10
+!
+ip routing
+!
+snmp-server community NOC-READONLY RO
+snmp-server community NOC-ADMIN RW
+snmp-server location Main-Network-Rack
+snmp-server contact noc@enterprise.local
+snmp-server host 10.10.10.10 version 2c NOC-READONLY
+snmp-server enable traps
+!
+logging 10.10.10.10
+service timestamps log datetime msec
+!
+end
+write
