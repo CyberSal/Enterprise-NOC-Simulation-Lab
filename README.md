@@ -1,6 +1,6 @@
 # Enterprise NOC Simulation: Troubleshooting and Defense 🌐
 
-**Author:** Salmata Lamin
+**Author:** CyberSal
 **Environment:** Cisco Packet Tracer
 **Objective:** Simulate, manage, and troubleshoot an enterprise NOC network with secure VLAN segmentation and inter-VLAN routing.
 
@@ -8,55 +8,47 @@
 
 ## 🛡️ Executive Summary
 
-This project documents the successful setup and management of a simulated enterprise network segment. It showcases competency in **VLAN segmentation**, **Inter-VLAN routing (Router-on-a-Stick)**, and **proactive incident response**. The report details the diagnosis and resolution of a connectivity loss incident and the implementation of a separate Management VLAN for security.
+This project documents the successful deployment and security hardening of a simulated enterprise network segment. It showcases competency in **VLAN segmentation**, **Inter-VLAN routing**, **incident response**, and the implementation of **High Availability (HSRP)**.
 
 ### Key Skills Demonstrated
-* **VLAN Implementation:** Segmenting the network into Admin (VLAN 10), Operations (VLAN 20), and Security (VLAN 30).
-* **Inter-VLAN Routing:** Configuring the CORE-RTR01 router to handle routing between all segments.
-* **Incident Response:** Diagnosing and resolving a connectivity loss incident caused by an interface shutdown.
-* **Proactive Defense:** Implementing a separate Management VLAN (99) and configuring **SNMP/Syslog** alerts for state monitoring.
+* **Complex Troubleshooting:** Diagnosing and resolving a persistent Layer 2 trunk negotiation failure that caused a full inter-VLAN routing failure.
+* **Traffic Control:** Defining and implementing a restrictive **Extended Access Control List (ACL)**.
+* **Proactive Defense:** Configuring **Syslog logging** and **SNMP community strings** for remote management and alert generation.
+* **High Availability:** Implementing **HSRP** to ensure core router redundancy.
 
 ---
 
-## 🛠️ Infrastructure and Configuration Baseline
+## 🚨 Incident Response and Security Audit
 
-### Device Inventory and VLAN Summary
+### 1. Inter-VLAN Routing Failure Resolution
 
-The network utilizes a **Core Router (CORE-RTR01)** to serve as the gateway for all segmented VLANs.
+A persistent routing failure was initially observed between VLAN 10 and VLAN 30. The failure was resolved by explicitly correcting the trunk encapsulation (`dot1q`) and VLAN assignments on the switches, restoring full inter-VLAN connectivity.
 
-| VLAN ID | Department | Subnet | Gateway |
-| :--- | :--- | :--- | :--- |
-| **10** | Admin | 10.10.10.0/24 | 10.10.10.1 |
-| **20** | Operations | 10.10.20.0/24 | 10.10.20.1 |
-| **30** | Security | 10.10.30.0/24 | 10.10.30.1 |
-| **99** | Management (OOB) | N/A | N/A |
-
-### Change Implementation: Management VLAN 99
-
-A separate Management VLAN (99) was implemented for out-of-band SNMP/Syslog traffic to enhance security and network isolation.
-
-* **Date:** 10/21/2025
-* **Change:** Added Management VLAN 99 for SNMP/Syslog traffic.
-* **Verification:** Verified successful pings to the new gateway interface.
-
----
-
-## 🚨 Incident Response and Troubleshooting
-
-### Incident Summary (NOC-2025-001)
-
-A loss of connectivity was reported between the Admin VLAN (10) and the Operations VLAN (20).
-
-* **Problem:** Ping requests from PC-ADMIN (`10.10.10.24`) to PC-OPS (`10.10.20.24`) failed entirely.
-* **Root Cause:** Router sub-interface **`Gig0/0.20`** (serving the Operations VLAN) was found to be **administratively down**.
-* **Verification Evidence:**  (Shows 100% packet loss)
-
-### Resolution
-
-| Action Taken | Outcome |
+| Activity | Verification Proof |
 | :--- | :--- |
-| **Fix** | Executed `no shutdown` on interface `Gig0/0.20`. |
-| **Resolution Verification** | Confirmed successful pings between VLANs 10, 20, and 30, restoring inter-VLAN routing. |
+| **Initial Failure State** | Image showing ping from Admin to Ops/Sec failed (100% loss) due to trunk negotiation failure. |
+| **Verification of Fix** | Confirmed successful pings between VLANs 10, 20, and 30, restoring inter-VLAN routing. |
+
+### 2. Security Implementation and Verification
+
+Traffic controls, proactive monitoring, and router redundancy were successfully deployed on the core network devices.
+
+| Control | Configuration Summary | Verification Proof |
+| :--- | :--- | :--- |
+| **Traffic Control (ACL)** | Extended ACL applied **outbound** on `Gig0/0.30` to block traffic from the 10.10.20.0/24 network. | **Verification:** Ping from PC-OPS to PC-SEC **failed (100% loss)**, confirming the ACL is enforced. |
+| **Proactive Monitoring** | `snmp-server community CyberOPS_Monitor RO` and `logging 10.10.10.10` configured. | **Verification:** CLI output confirms Syslog destination and SNMP community string are active. |
+| **High Availability (HSRP)** | HSRP configured on CORE-RTR01 (Active) and CORE-RTR02 (Standby). | **Verification:** `show standby brief` confirms router roles are assigned and the Virtual IP (VIP) is online. |
+
+### 📸 Technical Verification Proofs
+
+| Activity | Proof of Configuration (Image) | Explanation of Screenshot |
+| :--- | :--- | :--- |
+| **Routing Failure** | [![Initial Failure Proof](./Screenshots/NOC_FAIL_PING_VLAN_20.png)](./Screenshots/NOC_FAIL_PING_VLAN_20.png) | Documents the initial **100% packet loss** when attempting to ping the target VLAN, serving as the starting evidence for the incident. |
+| **Initial Success** | [![Final Ping Confirmation](./Screenshots/NOC_VLAN_20_SUCCESS.png)](./Screenshots/NOC_VLAN_20_SUCCESS.png) | Documents the **successful restoration** of routing (0% loss) across the network before security was added. |
+| **ACL Enforcement** | [![ACL Verification Failure](./Screenshots/NOC_ACL_VERIFY_FAIL.png)](./Screenshots/NOC_ACL_VERIFY_FAIL.png) | Documents the **final, expected failure** (100% loss) after the ACL was correctly applied, proving security policy enforcement. |
+| **Monitoring Config** | [![SNMP and Syslog Configuration](./Screenshots/NOC_SNMP_CONFIG..png)](./Screenshots/NOC_SNMP_CONFIG..png) | Confirms the **Syslog destination** and **SNMP community string** were set on the Core Router for remote monitoring. |
+| **HSRP Router 1** | [![CORE-RTR01 HSRP Config](./Screenshots/NOC_R1_HSRP.png)](./Screenshots/NOC_R1_HSRP.png) | Documents the HSRP setup on the **Active** router, showing high priority and the Virtual IP. |
+| **HSRP Router 2** | [![CORE-RTR02 HSRP Config](./Screenshots/NOC_R2_HSRP.png)](./Screenshots/NOC_R2_HSRP.png) | Documents the HSRP setup on the **Standby** router, showing lower priority for redundancy. |
 
 ---
 
@@ -66,9 +58,6 @@ This project is ongoing. The next phase will focus on implementing security and 
 
 | Priority | Task | Focus Area |
 | :--- | :--- | :--- |
-| **1. Security Hardening** | **ACL Implementation:** Configure **Standard and Extended ACLs** on the CORE-RTR01 to restrict traffic (e.g., block PC-OPS from accessing the Security VLAN 30 gateway). | Network Segmentation |
-| **2. Monitoring** | **SNMP/Syslog Integration:** Configure **SNMP traps** and **Syslog logging** to send all interface state changes (up/down) and access violation alerts to the NOC-SRV01 server (VLAN 10). | Proactive Defense |
-| **3. Resilience** | **FHRP Implementation:** Configure a **First Hop Redundancy Protocol (HSRP/VRRP)** between the CORE-RTR01 and a simulated secondary router to prevent single points of failure. | High Availability |
-
-***
-
+| **1. Resilience** | **FHRP Verification:** Conduct failover testing (e.g., shutting down G0/0) to verify HSRP successfully switches the Active role to CORE-RTR02 within the required window. | High Availability / Resilience |
+| **2. Management Verification** | **SNMP Server Integration:** Implement the **SNMP server application** on the NOC-SRV01 to verify that the configured community string and Syslog messages are being actively received and processed. | Proactive Defense |
+| **3. Advanced Security** | **Advanced ACLs:** Implement stricter, time-based ACLs on the Management VLAN (99) to further restrict administrative access and reduce the attack window. | Security Hardening |
