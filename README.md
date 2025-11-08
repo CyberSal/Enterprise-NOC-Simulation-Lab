@@ -72,4 +72,3 @@ This project is ongoing. The next phase will focus on implementing security and 
 
 ***
 
-This completes the structured report for your NOC Simulation. What would you like to ask or discuss about this ongoing project? For example, would you like to review the specific ACLs you plan to implement in the next phase?
